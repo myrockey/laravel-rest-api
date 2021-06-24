@@ -22,6 +22,9 @@ class InterfaceLimitService extends BaseService{
         $this->redis = $redis;
     }
 
+    /**
+     * 模拟执行
+     */
     public function exec() {
         $queue = 'myContainer';
         $max = 5;
@@ -43,6 +46,34 @@ class InterfaceLimitService extends BaseService{
         for($i=0; $i<7; $i++){
             var_dump($tokenBucket->get());
         }
+
+    }
+
+    /**
+     * 投递令牌
+     */
+    public function add () {
+        //投递令牌
+        $queue = 'myContainer';
+        $max = 5;
+        $tokenBucket = new TokenBucketService($queue, $max);
+
+        swoole_timer_tick(800, function () use ($token) {
+            $tokenBucket->add(1);
+        });
+    }
+
+    /**
+     * 消费令牌
+     */
+    public function consume() {
+        $queue = 'myContainer';
+        $max = 5;
+        $tokenBucket = new TokenBucketService($queue, $max);
+
+        swoole_timer_tick(500, function () use ($token) {
+            $tokenBucket->get();
+        });
 
     }
 }
