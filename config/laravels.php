@@ -196,6 +196,7 @@ return [
         'jobs'            => [
             // Enable LaravelScheduleJob to run `php artisan schedule:run` every 1 minute, replace Linux Crontab
             // Hhxsv5\LaravelS\Illuminate\LaravelScheduleJob::class,
+            \App\Jobs\Timer\TestCronJob::class, // Override the corresponding method to return 配置swoole毫秒定时任务
         ],
 
         // Max waiting time of reloading
