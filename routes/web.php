@@ -27,4 +27,8 @@ Route::get('/secKill/del', [\App\Http\Controllers\SecKillController::class, 'del
 Route::get('/interfaceLimit/index', [\App\Http\Controllers\InterfaceLimitController::class, 'index']);
 //****** 限流示例 ******//
 
+//****** 事件监听示例 ******//
+Route::get('/test/index', [\App\Http\Controllers\TestController::class, 'index']);
+//****** 事件监听示例 ******//
+
 
