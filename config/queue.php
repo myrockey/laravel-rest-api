@@ -67,7 +67,9 @@ return [
             'connection' => 'default',
             'queue' => env('REDIS_QUEUE', 'default'),
             'retry_after' => 90,
-            'block_for' => null,
+            // 阻塞5秒 block_for 配置选项来指定在遍历 worker 循环和重新轮询 Redis 数据库之前，驱动程序需要等待多长时间才能使任务变得可用
+            // 设置为 0 将导致队列 workers 一直阻塞，直到某一个任务变得可用。这还能防止在下一个任务被处理之前处理诸如 SIGTERM 之类的信号
+            'block_for' => 5,
             'after_commit' => false,
         ],
 

@@ -31,4 +31,8 @@ Route::get('/interfaceLimit/index', [\App\Http\Controllers\InterfaceLimitControl
 Route::get('/test/index', [\App\Http\Controllers\TestController::class, 'index']);
 //****** 事件监听示例 ******//
 
+//****** 队列任务示例 ******//
+Route::get('/test/testQueue', [\App\Http\Controllers\TestController::class, 'testQueue']);
+//****** 队列任务示例 ******//
+
 

@@ -100,4 +100,83 @@ php artisan db:seed --force
 ```
 
 
+### 队列 使用
+#### 1、config/queue.php 下配置
+```
+# 要使用 database 队列驱动程序
+php artisan queue:table
+
+php artisan migrate
+
+#要使用 redis 队列驱动程序，需要在 config/database.php 配置文件中配置一个 redis 数据库连接
+'redis' => [
+    'driver' => 'redis',
+    'connection' => 'default',
+    'queue' => '{default}',
+    'retry_after' => 90,
+],
+
+```
+
+#### 2、创建任务
+```
+#应用程序的所有的可排队任务都被存储在了 app/Jobs 目录中。
+#如果 app/Jobs 目录不存在，当您运行 make:job Artisan 命令时，将会自动创建它。您可以使用 Artisan CLI 来生成一个新的队列任务：
+php artisan make:job TestQueueJob
+
+```
+#### 3、任务中间件
+```
+#创建中间件 限制队列执行速度
+php artisan make:middleware RateLimited
+#修改代码
+
+```
+#### 4、任务处理
+```
+#执行默认连接和默认队列
+php artisan queue:work
+
+
+#执行指定连接和默认队列
+php artisan queue:work redis
+
+
+#执行默认连接和指定队列
+php artisan queue:work --queue=processing
+
+
+```
+#### 5、任务事件
+```
+#任务失败事件
+# 如果你想要注册一个将在任务失败时调用的事件，你可以使用 Queue::failing 方法。
+#这是一个通过电子邮件或 Slack 通知你的团队的好机会。例如，我们可以在 Laravel 里的 AppServiceProvider 里附加一个回调到这个事件：
+
+#任务执行前后事件
+#使用 Queue facade 上的 before 和 after 方法，可以指定在处理排队任务之前或之后执行的回调。
+#如果要为控制面板执行附加日志记录或增量统计，这些回调会是绝佳时机。通常，你应该从 服务提供者 调用这些方法。例如，我们可以使用 Laravel 的 AppServiceProvider：
+
+#使用 Queue facade 上的 looping 方法，你可以指定在 worker 尝试从队列获取任务之前执行的回调。例如，你可以注册一个闭包来回滚以前失败的任务留下的任何事务：
+```
+#### 6、重试失败的任务
+```
+#重试失败的任务
+#要查看所有插入到 failed_jobs 数据库表中的失败任务，可以使用 queue:failed Artisan 命令：
+php artisan queue:failed
+
+#如果需要，您可以传递多个 ID 或一个 ID 范围 (使用数字 ID 时) 到命令：
+php artisan queue:retry 5 6 7 8 9 10
+php artisan queue:retry --range=5-10
+
+#要重试所有失败的任务，请执行 queue:retry 命令，并将 all 作为 ID 传递：
+php artisan queue:retry all
+
+#如果你想删除一个失败的任务，你可以使用 queue:forget 命令：
+php artisan queue:forget 5
+
+#要删除所有失败的任务，您可以使用 queue:flush 命令：
+php artisan queue:flush
+
+```
 
