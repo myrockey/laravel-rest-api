@@ -1,62 +1,103 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+### 1、数据库迁移 migrate 使用
+##### database/migrations目录下的文件
+```
+#1、新建test表的文件生成 配置参考代码
+php artisan make:migration create_test
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+#2、更新test表的文件生成 配置参考代码
+php artisan make:migration update_test
 
-## About Laravel
+#3、还未执行的文件，执行迁移数据创建更新表到数据库（前提配置.env文件下的数据库信息）
+php artisan migrate
+# 执行指定文件
+php artisan migrate --path=./database/migrations/2021_06_29_024957_update_test.php
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+#4、如果要回滚迁移操作 ()
+php artisan migrate:rollback
+#通过向 rollback 命令加上 step 参数，可以回滚指定数量的迁移。
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+#例如，以下命令将回滚最后五个迁移：
+php artisan migrate:rollback --step=5
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+#5、其他命令
+#创建migrations表到数据库
+php artisan migrate:install
 
-## Learning Laravel
+#查看迁移状态
+php artisan migrate:status
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+#重置数据库所有迁移(会根据migrations表把所有数据库的数据表删除)
+php artisan migrate:reset
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+# 使用单个命令同时进行回滚和迁移操作
+#命令 migrate:refresh 首先会回滚已运行过的所有迁移，
+#随后会执行 migrate。这一命令可以高效地重建你的整个数据库：
+php artisan migrate:refresh
 
-## Laravel Sponsors
+# 重置数据库，并运行所有的 seeds...（seed就是insert的模拟数据记录）
+php artisan migrate:refresh --seed
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+#通过在命令 refresh 中使用 step 参数，你可以回滚并重新执行指定数量的迁移操作。
+#例如，下列命令会回滚并重新执行最后五个迁移操作：
+php artisan migrate:refresh --step=5
 
-### Premium Partners
+#删除所有表然后执行迁移 (慎用小心)
+#命令 migrate:fresh 会删去数据库中的所有表，随后执行命令 migrate：
+php artisan migrate:fresh
+# 运行所有的 seeds...（seed就是insert的模拟数据记录）
+php artisan migrate:fresh --seed
+```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
+### 2、备份表结构
+```
+# 备份表结构
+php artisan schema:dump
 
-## Contributing
+#  转储当前数据库架构并删除所有现有迁移。。。（会删除database/migrations目录）
+php artisan schema:dump --prune
+```
+### 3、生成数据 数据填充
+```
+# 1、创建文件
+php artisan make:seeder TestSeeder
+# 2、编辑代码 在run方法里
+#2.1 可以单条生成
+// 1、单条插入 太慢
+        DB::table('test')->insert([
+            'name' => Str::random(10),
+            'msg' => Str::random(10).' test',
+            'status' => rand(0,1),
+            'ext1' => rand(0,999),
+            'ext2' => Str::random(10).' test',
+        ]);
+#2.2 通过模型工厂生成批量数据
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
 
-## Code of Conduct
+#2.2.1 新建模型model
+php artisan make:model Test
+#2.2.2 新建模型工厂类
+php artisan make:factory TestFactory
+#2.2.3 在run方法里代码：
+// 2、模型工厂创建数据 批量
+        Test::factory()
+            ->count(50)
+            ->create();
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3、执行文件 (所有) 调用的时 DatabaseSeeder下面包含的类
+php artisan db:seed
+# 3.1 执行指定文件
+php artisan db:seed --class=TestSeeder
 
-## Security Vulnerabilities
+##您还可以使用 migrate:fresh 命令结合 --seed 选项，
+#这将删除数据库中所有表并重新运行所有迁移。此命令对于完全重建数据库非常有用：
+php artisan migrate:fresh --seed
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+#在生产环境中强制运行填充
+#一些填充操作可能会导致原有数据的更新或丢失。为了保护生产环境数据库的数据，在 生产环境 中运行填充命令前会进行确认。
+#可以添加 --force 选项来强制运行填充命令：
+php artisan db:seed --force
 
-## License
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+
