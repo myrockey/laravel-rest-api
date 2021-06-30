@@ -84,4 +84,10 @@ class TestController extends BasicController
         return ResultMsgJson::successReturn();
     }
 
+
+    public function testMiddleware (Request $request) {
+
+        return ResultMsgJson::successReturn();
+    }
+
 }

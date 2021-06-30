@@ -441,3 +441,9 @@ supervisorctl -s http://localhost:7001
 
 
 ```
+
+### 中间件示例
+```
+#创建一个中间件
+php artisan make:middleware CheckRepeat
+```
