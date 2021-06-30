@@ -90,4 +90,9 @@ class TestController extends BasicController
         return ResultMsgJson::successReturn();
     }
 
+    public function testCsrf (Request $request) {
+
+        return ResultMsgJson::successReturn();
+    }
+
 }

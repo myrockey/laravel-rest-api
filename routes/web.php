@@ -17,4 +17,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-
+//****** CSRF白名单示例 ******//
+Route::post('/testCsrf', [\App\Http\Controllers\TestController::class, 'testCsrf']);
+//****** CSRF白名单示例 ******//
