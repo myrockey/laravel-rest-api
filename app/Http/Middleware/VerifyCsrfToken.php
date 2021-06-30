@@ -13,5 +13,6 @@ class VerifyCsrfToken extends Middleware
      */
     protected $except = [
         //
+        '/testCsrf' // 加入白名单 不校验CSRF
     ];
 }
