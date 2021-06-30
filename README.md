@@ -447,3 +447,76 @@ supervisorctl -s http://localhost:7001
 #创建一个中间件
 php artisan make:middleware CheckRepeat
 ```
+
+### 控制器
+
+```
+#控制器并 不是强制要求继承基础类 。 但是， 如果控制器没有继承基础类，你将无法使用一些便捷的功能，比如 middleware, validate 和 dispatch 方法。
+
+#单个行为控制器
+#如果你想定义一个只处理单个行为的控制器，你可以在控制器中放置一个 __invoke 方法：
+    <?php
+
+    namespace App\Http\Controllers;
+
+    use App\User;
+    use App\Http\Controllers\Controller;
+
+    class ShowProfile extends Controller
+    {
+        /**
+         * 展示给定用户的资料.
+         *
+         * @param  int  $id
+         * @return View
+         */
+        public function __invoke($id)
+        {
+            return view('user.profile', ['user' => User::findOrFail($id)]);
+        }
+    }
+
+#也可以直接命令行：
+php artisan make:controller ShowProfileController --invokable
+
+
+#资源控制器
+#Laravel 资源路由将典型的「CURD (增删改查)」路由分配给具有单行代码的控制器。 例如，你希望创建一个控制器来处理应用保存的 "照片" 的所有 HTTP 请求。使用 Artisan 命令 make:controller ， 我们可以快速创建这样一个控制器：
+
+php artisan make:controller PhotoController --resource
+
+#这个命令会生成一个控制器 app/Http/Controllers/PhotoController.php。 其中包括每个可用资源操作的方法。
+
+#接下来，你可以给控制器注册一个资源路由：
+
+Route::resource('photos', 'PhotoController');
+
+
+#API 资源路由
+当声明用于 APIs 的资源路由时，通常需要排除显示 HTML 模板的路由， 如 create 和 edit。 为了方便起见，你可以使用 apiResource 方法自动排除这两个路由：
+
+Route::apiResource('photos', 'PhotoController');
+#你可以通过传递一个数组给 apiResources 方法的方式来一次性注册多个 API 资源控制器：
+
+Route::apiResources([
+    'photos' => 'PhotoController',
+    'posts' => 'PostController'
+]);
+#为了快速生成一个不包含 create 和 edit 方法的 API 资源控制器，可以在执行 make:controller 命令时加上 --api 选项：
+
+php artisan make:controller API/PhotoController --api
+
+#路由缓存#
+#注意：基于闭包的路由无法被缓存。要使用路由缓存。你需要将任何闭包路由转换成控制器路由。
+
+#如果你的应用只使用了基于控制器的路由，那么你应该利用路由缓存。使用路由缓存将极大地减少注册所有应用路由所需的时间。某些情况下，路由注册的速度甚至会快 100 倍。要生成路由缓存，只需要执行 route:cache ：
+
+php artisan route:cache
+#运行此命令之后，每个请求都将加载缓存的路由文件。记住，如果你添加了任何的新路由，则需要生成新的路由缓存。因此，你只应在项目部署期间运行 route:cache 命令。
+
+#你可以使用 route:clear 命令来清除路由缓存：
+
+php artisan route:clear
+
+
+```
