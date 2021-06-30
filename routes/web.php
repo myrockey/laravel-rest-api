@@ -17,22 +17,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-//****** 秒杀示例 ******//
-Route::get('/secKill/add', [\App\Http\Controllers\SecKillController::class, 'index']);
-Route::get('/secKill/lists', [\App\Http\Controllers\SecKillController::class, 'getLists']);
-Route::get('/secKill/del', [\App\Http\Controllers\SecKillController::class, 'del']);
-//****** 秒杀示例 ******//
-
-//****** 限流示例 ******//
-Route::get('/interfaceLimit/index', [\App\Http\Controllers\InterfaceLimitController::class, 'index']);
-//****** 限流示例 ******//
-
-//****** 事件监听示例 ******//
-Route::get('/test/index', [\App\Http\Controllers\TestController::class, 'index']);
-//****** 事件监听示例 ******//
-
-//****** 队列任务示例 ******//
-Route::get('/test/testQueue', [\App\Http\Controllers\TestController::class, 'testQueue']);
-//****** 队列任务示例 ******//
-
 
