@@ -434,9 +434,10 @@ supervisorctl -s http://localhost:7001
 ### 配置supervisor
 #### laravel 的队列任务进程
 ```
-#Supervisor 的配置文件通常位于 /etc/supervisor/conf.d 目录下。
+
+#Supervisor 的配置文件通常位于 /etc/supervisord.d/ 目录下 .ini结尾。
 #在该目录中，你可以创建任意数量的配置文件，用来控制 supervisor 将如何监控你的进程。
-#例如，创建一个 laravel-worker.conf 文件使之启动和监控一个 queue:work 进程：
+#例如，创建一个 laravel-worker.ini 文件使之启动和监控一个 queue:work 进程：
 
 
 ```
