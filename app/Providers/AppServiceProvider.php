@@ -7,6 +7,7 @@ use Illuminate\Queue\Events\JobProcessed;
 use Illuminate\Queue\Events\JobProcessing;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -29,6 +30,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         //
+        // 对于mysql版本低的 或者 非utf8mb4 的兼容
+        Schema::defaultStringLength(191);
+
         // 任务执行前 触发事件
         Queue::before(function (JobProcessing $event) {
             // $event->connectionName
