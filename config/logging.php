@@ -100,6 +100,11 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'custom' => [
+            'driver' => 'custom',
+            'via' => App\Logging\CreateCustomLogger::class,
+        ],
     ],
 
 ];
