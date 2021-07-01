@@ -12,6 +12,7 @@ use App\Utils\ResultMsgJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class TestController extends BasicController
 {
@@ -120,6 +121,11 @@ class TestController extends BasicController
                 return ResultMsgJson::errorReturn();
             }
 
+        return ResultMsgJson::successReturn();
+    }
+
+    public function testLog () {
+        Log::stack(['daily', 'single', 'custom', 'errorlog', 'syslog', 'stderr', 'papertrail', 'slack'])->info("this is a log");
         return ResultMsgJson::successReturn();
     }
 

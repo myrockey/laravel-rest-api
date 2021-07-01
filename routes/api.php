@@ -45,3 +45,7 @@ Route::post('/testMiddleware', [\App\Http\Controllers\TestController::class, 'te
 //****** 异常处理示例 ******//
 Route::get('/testError', [\App\Http\Controllers\TestController::class, 'testError']);
 //****** 异常处理示例 ******//
+
+//****** 日志处理示例 ******//
+Route::get('/testLog', [\App\Http\Controllers\TestController::class, 'testLog']);
+//****** 日志处理示例 ******//
