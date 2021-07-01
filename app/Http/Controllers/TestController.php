@@ -95,4 +95,30 @@ class TestController extends BasicController
         return ResultMsgJson::successReturn();
     }
 
+    /**
+     *  #自定义 HTTP 错误页面
+        #Laravel 创建了可以轻松显示各种 HTTP 状态码的自定义错误页面。例如，如果您想要自定义 HTTP 状态码为 404 的错误页面，您只需创建 resources/views/errors/404.blade.php 文件。该文件用于您的应用产生的所有 404 错误。
+        #该目录中的视图应与它们所对应的 HTTP 状态码。由 abort 函数引发的 HttpException 实例将作为 exception 变量传递给视图：
+        <h2>{{ $exception->getMessage() }}</h2>
+        #您可以使用 vendor:publish Artisan 命令发布 Laravel 错误页面模板。一旦您发布了模板，您就可以像下面这样自定义它们：
+        php artisan vendor:publish --tag=laravel-errors
+     */
+    public function testError (Request $request) {
+
+        // HTTP 异常 abort抛出异常
+//        abort(403, 'Unauthorized action.');
+        throw new \Exception(654321);
+
+            try {
+                // 校验值...
+                throw new \Exception(123456);
+            } catch (\Throwable $e) {
+                //report($e); // 有时，您可能需要报告异常，但不终止当前请求的处理。report 辅助函数允许您在不渲染错误页面的情况下快速报告异常：
+
+                return ResultMsgJson::errorReturn();
+            }
+
+        return ResultMsgJson::successReturn();
+    }
+
 }
