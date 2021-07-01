@@ -520,3 +520,15 @@ php artisan route:clear
 
 
 ```
+
+
+### 任务调度 （定时任务处理 队列任务 等）
+```
+#过去，你可能需要在服务器上为每一个调度任务去创建 Cron 条目。因为这些任务的调度不是通过代码控制的，你要查看或新增任务调度都需要通 SSH 远程登录到服务器上去操作，所以这种方式很快会让人变得痛苦不堪。
+#Laravel 的命令行调度器允许你在 Laravel 中清晰明了地定义命令调度。在使用这个任务调度器时，你只需要在你的服务器上创建单个 Cron 入口。你的任务调度在 app/Console/Kernel.php 的 schedule 方法中进行定义。为了帮助你更好的入门，这个方法中有个简单的例子。
+# 查看任务列表
+php artisan schedule:list
+# 执行
+php artisan schedule:work
+
+```
