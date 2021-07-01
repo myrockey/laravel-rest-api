@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Events\ActionLog;
+use App\Exceptions\ApiException;
+use App\Exceptions\CustomException;
 use App\Http\Controllers\Controller;
 use App\Jobs\TestQueueJob;
 use App\Models\User;
@@ -107,7 +109,7 @@ class TestController extends BasicController
 
         // HTTP 异常 abort抛出异常
 //        abort(403, 'Unauthorized action.');
-        throw new \Exception(654321);
+        throw new ApiException(654321);
 
             try {
                 // 校验值...
