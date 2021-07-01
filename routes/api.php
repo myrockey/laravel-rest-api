@@ -41,3 +41,7 @@ Route::get('/test/testQueue', [\App\Http\Controllers\TestController::class, 'tes
 //****** 中间件示例 ******//
 Route::post('/testMiddleware', [\App\Http\Controllers\TestController::class, 'testMiddleware'])->middleware('check.repeat');
 //****** 中间件示例 ******//
+
+//****** 异常处理示例 ******//
+Route::get('/testError', [\App\Http\Controllers\TestController::class, 'testError']);
+//****** 异常处理示例 ******//
