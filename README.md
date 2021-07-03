@@ -534,3 +534,149 @@ php artisan schedule:list
 php artisan schedule:work
 
 ```
+
+### 用户认证
+```
+#1.web端快速开始 安装 Laravel 的 laravel/jetstream 扩展包提供了一种快速方法，可以使用一些简单的命令来支持你进行身份验证所需的所有路由和视图：
+composer require laravel/jetstream
+
+#如下：二选一 安装
+// 使用 Livewire 栈安装 Jetstream...
+php artisan jetstream:install livewire
+
+// 使用 Inertia 栈安装 Jetstream...
+php artisan jetstream:install inertia
+
+## 注意在 windows 下composer require laravel/jetstream 时会报错，缺少ext-pcntl 通过配置 还是推荐直接在linux下安装包
+
+#2. php artisan migrate 新建数据表
+
+#3.访问web页面，需要先运行前段界面 npm install && npm run dev
+```
+
+### JWT 实现 Laravel 认证（前后端分离项目必备）
+```
+# 通过 composer 安装 jwt
+composer require tymon/jwt-auth
+#注意 安装时报错提示缺少ext-pnctl
+"config": {
+        "preferred-install": "dist",
+        "sort-packages": true,
+        "optimize-autoloader": true,
+        "platform": {
+            "ext-pcntl": "7.2",
+            "ext-posix": "7.2"
+        }
+    },
+
+
+
+#添加服务提供商（Laravel 5.4 或更低版本）
+#将服务提供者添加到配置文件中的 providers 阵列中 config/app.php，如下所示：
+#config/app.php
+
+'providers' => [
+    ...
+    Tymon\JWTAuth\Providers\LaravelServiceProvider::class,
+]
+
+
+#发布配置
+#运行以下命令以发布程序包配置文件：
+php artisan vendor:publish --provider="Tymon\JWTAuth\Providers\LaravelServiceProvider"
+#现在，您应该拥有一个 config/jwt.php 文件，该文件可让您配置此软件包的基础。
+#注意：提示缺少ext-pnctl ，直接忽略平台检测
+git checkout -- vendor/composer/platform_check.php
+
+#生成 JWT 密钥
+php artisan jwt:secret
+
+#配置授权
+#注意：仅在使用 Laravel 5.2 及更高版本时，此方法才有效。
+#在 config/auth.php 文件内部，您需要进行一些更改，以配置 Laravel 使用 jwt 防护来增强您的应用程序身份验证。
+#config/auth.php
+
+'defaults' => [
+    'guard' => 'api',
+    'passwords' => 'users',
+],
+
+#.
+#.
+#.
+
+'guards' => [
+    'api' => [
+        'driver' => 'jwt',
+        'provider' => 'users',
+    ],
+],
+
+
+
+#添加一些基本的身份验证路由
+#让我们添加一些路由，routes/api.php 如下所示：
+#routes/api.php
+
+Route::group([ 'namespace' => 'Api' ], function($router) {
+    $router->post('login', 'AuthController@store');
+    $router->match([ 'patch', 'put' ], 'refresh', 'AuthController@update');
+    $router->delete('logout', 'AuthController@destroy');
+    $router->any('me', 'UserController@show');
+});
+
+
+#创建 AuthController
+#我们可以通过手动或运行 artisan 命令来创建：
+php artisan make:controller Api\\AuthController
+
+#创建 AuthPresenter
+#在 app 目录下新建 Presenters 文件夹，接着在 Presenters 文件夹下新建 AuthPresenter.php 文件。
+app/Presenters/AuthPresenter.php
+
+
+#创建 AuthRequest
+#我们可以通过手动或运行 artisan 命令来创建：
+php artisan make:request AuthRequest
+
+
+
+#创建 UserController
+#我们可以通过手动或运行 artisan 命令来创建
+php artisan make:controller Api\\UserController
+
+#更新 Controller
+#app/Http/Controllers/Controller.php
+
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Foundation\Bus\DispatchesJobs;
+use Illuminate\Foundation\Validation\ValidatesRequests;
+use Illuminate\Routing\Controller as BaseController;
+use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\UserNotDefinedException;
+
+class Controller extends BaseController
+{
+    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+
+    public function authUser()
+    {
+        try {
+            $user = Auth::userOrFail();
+        } catch (UserNotDefinedException $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ]);
+        }
+
+        return $user;
+    }
+}
+
+#好了，下面进入测试环节。
+
+```
