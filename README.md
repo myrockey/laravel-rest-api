@@ -534,3 +534,22 @@ php artisan schedule:list
 php artisan schedule:work
 
 ```
+
+### 用户认证
+```
+#1.web端快速开始 安装 Laravel 的 laravel/jetstream 扩展包提供了一种快速方法，可以使用一些简单的命令来支持你进行身份验证所需的所有路由和视图：
+composer require laravel/jetstream
+
+#如下：二选一 安装
+// 使用 Livewire 栈安装 Jetstream...
+php artisan jetstream:install livewire
+
+// 使用 Inertia 栈安装 Jetstream...
+php artisan jetstream:install inertia
+
+## 注意在 windows 下composer require laravel/jetstream 时会报错，缺少ext-pcntl 通过配置 还是推荐直接在linux下安装包
+
+#2. php artisan migrate 新建数据表
+
+#3.访问web页面，需要先运行前段界面 npm install && npm run dev
+```

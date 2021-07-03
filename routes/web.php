@@ -29,3 +29,7 @@ Route::get('/profile/{id}', '\App\Http\Controllers\ShowProfileController');
 Route::resource('photos', '\App\Http\Controllers\PhotoController'); // 资源路由 对应 增删改查
 //****** 控制器示例 ******//
 
+
+Route::middleware(['auth:sanctum', 'verified'])->get('/dashboard', function () {
+    return view('dashboard');
+})->name('dashboard');
