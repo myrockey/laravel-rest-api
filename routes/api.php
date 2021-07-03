@@ -49,3 +49,16 @@ Route::get('/testError', [\App\Http\Controllers\TestController::class, 'testErro
 //****** 日志处理示例 ******//
 Route::get('/testLog', [\App\Http\Controllers\TestController::class, 'testLog']);
 //****** 日志处理示例 ******//
+
+
+
+//****** jwt示例 ******//
+Route::group([ 'namespace' => 'Api' ], function($router) {
+    $router->post('login', '\App\Http\Controllers\Api\AuthController@store');
+    $router->match([ 'patch', 'put' ], 'refresh', '\App\Http\Controllers\Api\AuthController@update');
+    $router->delete('logout', '\App\Http\Controllers\Api\AuthController@destroy');
+    $router->any('me', '\App\Http\Controllers\Api\UserController@show');
+});
+//****** jwt示例 ******//
+
+
