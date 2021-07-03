@@ -440,8 +440,6 @@ supervisorctl -s http://localhost:7001
 #例如，创建一个 laravel-worker.ini 文件使之启动和监控一个 queue:work 进程：
 
 
-#supervisor 比较适合监控业务应用，且只能监控前台程序，
-#php fork方式实现的daemon不能用它监控，否则supervisor> status 会提示：BACKOFF  Exited too quickly (process log may have details)
 ```
 
 ### 中间件示例
