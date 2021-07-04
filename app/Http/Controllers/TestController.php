@@ -11,6 +11,7 @@ use App\Models\User;
 use App\Utils\ResultMsgJson;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Bus;
+use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
@@ -129,4 +130,17 @@ class TestController extends BasicController
         return ResultMsgJson::successReturn();
     }
 
+
+    public function testCrypt(Request $request) {
+
+        $name = $request->get('name', 'rockey');
+
+        $encrypt = Crypt::encryptString($name);
+        $data = [
+            'name' => $name,
+            'encrypt' => $encrypt,
+            'decrypt' => Crypt::decryptString($encrypt),
+        ];
+        return ResultMsgJson::successReturn($data);
+    }
 }

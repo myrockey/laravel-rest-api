@@ -62,3 +62,6 @@ Route::group([ 'namespace' => 'Api' ], function($router) {
 //****** jwt示例 ******//
 
 
+//****** 加密解密示例 ******//
+Route::get('/testCrypt', [\App\Http\Controllers\TestController::class, 'testCrypt']);
+//****** 加密解密示例 ******//
