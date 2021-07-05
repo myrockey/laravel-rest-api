@@ -732,3 +732,196 @@ class Controller extends BaseController
  }
 
 ```
+
+### 数据库
+```
+#Laravel 支持原生的 SQL 查询、流畅的查询构造器 和 Eloquent ORM 这些操作在各种数据库后台与数据库的交互变得非常简单。目前 Laravel 支持以下四种数据库：
+#MySQL 5.6+ （版本策略）
+#PostgreSQL 9.4+ （版本策略）
+#SQLite 3.8.8+
+#SQL Server 2017+ （版本策略）
+
+#配置
+#数据库的配置文件在 config/database.php 文件中，你可以在这个文件中定义所有的数据库连接配置，并指定默认的数据库连接。这个文件中提供了大部分 Laravel 能够支持的数据库配置示例。
+
+#URLs 形式配置
+#通常，数据库连接使用多个配置值，例如 host、database、username、password 等。这些配置值中的每一个都有其相应的环境变量。这意味着在生产服务器上配置数据库连接信息时，需要管理多个环境变量。
+#一些托管数据库提供程序（如 Heroku）提供单个数据库「URL」，该 URL 在单个字符串中包含数据库的所有连接信息。示例数据库 URL 可能如下所示：
+mysql://root:password@127.0.0.1/forge?charset=UTF-8
+
+#这些 URLs 通常遵循标准模式约定：
+driver://username:password@host:port/database?options
+#为了方便起见，Laravel 支持这些 URLs，作为使用多个配置选项配置数据库的替代方法。如果存在 url（或相应的 DATABASE_URL 环境变量）配置选项，则将使用该选项提取数据库连接和凭证信息。
+
+## 读写分离
+#有时候你希望 SELECT 语句使用一个数据库连接，而 INSERT、UPDATE 和 DELETE 语句使用另一个数据库连接。在 Laravel 中，无论你是使用原生查询，查询构造器，还是 Eloquent ORM，都能轻松的实现。
+# 为了弄明白读写分离是如何配置的，我们先来看个例子：
+'mysql' => [
+    'read' => [
+        'host' => [
+            '192.168.1.1',
+            '196.168.1.2',
+        ],
+    ],
+    'write' => [
+        'host' => [
+            '196.168.1.3',
+        ],
+    ],
+    'sticky' => true,
+    'driver' => 'mysql',
+    'database' => 'database',
+    'username' => 'root',
+    'password' => '',
+    'charset' => 'utf8mb4',
+    'collation' => 'utf8mb4_unicode_ci',
+    'prefix' => '',
+],
+
+#注意在以上的例子中，配置数组中增加了三个键，分别是 read、write 和 sticky。read 和 write 都包含一个键为 host 的数组。而 read 和 write 的其他数据库选项都在键为 mysql 的数组中。
+#如果你想重写主数组中的配置，只需要修改 read 和 write 数组即可。所以，这个例子中：192.168.1.1 和 192.168.1.2 将作为 「读」 连接主机，而 192.168.1.3 将作为 「写」 连接主机。这两个连接会共享 mysql 数组的各项配置，如数据库的凭证（用户名 / 密码），前缀，字符编码等。
+#sticky 选项
+#sticky 是一个 可选值，它用于立即读取在当前请求周期内已写入数据库的记录。若 sticky 选项被启用，并且当前请求周期内执行过「写」操作，那么任何「读」操作都将使用「写」连接。这样可确保同一个请求周期内写入的数据可以被立即读取到，从而避免主从同步延迟导致数据不一致的问题。不过是否启用它，取决于应用程序的需求。
+
+## 使用多数据库连接
+#当使用多数据库连接时，你可以通过 DB Facade 门面的 connection 方法访问每一个连接。传递给 connection 方法的参数 name 应该是 config/database.php 配置文件中 connections 数组中的一个值：
+$users = DB::connection('foo')->select(...);
+
+# 你也可以使用一个连接实例上的 getPdo 方法访问底层的 PDO 实例：
+$pdo = DB::connection()->getPdo();
+
+## 执行原生 SQL 查询
+#一旦配置好数据库连接后，便可以使用 DB facade 门面运行查询。DB facade 为每种类型的查询提供了相应的方法：select，update，insert，delete 和 statement。
+
+#执行 Select 查询
+#你可以使用 DB Facade 的 select 方法来运行基础的查询语句：
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
+
+class UserController extends Controller
+{
+    /**
+     * 显示应用程序中所有用户的列表
+     *
+     * @return Response
+     */
+    public function index()
+    {
+        $users = DB::select('select * from users where active = ?', [1]);
+
+        return view('user.index', ['users' => $users]);
+    }
+}
+
+#传递给 select 方法的第一个参数就是一个原生的 SQL 查询，而第二个参数则是需要绑定到查询中的参数值。通常，这些值用于约束 where 语句。参数绑定可以防止 SQL 注入。
+#select 方法将始终返回一个 array 数组，数组中的每个结果都是一个 stdClass 对象，可以像下面这样访问结果中的数值：
+
+ foreach ($users as $user) {
+     echo $user->name;
+ }
+
+## 使用命名绑定
+#除了使用 ? 表示参数绑定外，你还可以使用命名绑定的形式来执行一个查询：
+$results = DB::select('select * from users where id = :id', ['id' => 1]);
+
+#执行 Insert 语句
+#你可以使用 DB Facade 的 insert 方法来执行 insert 语句。与 select 方法一样，该方法将原生 SQL 查询作为其第一个参数，并将绑定的数据作为第二个参数：
+DB::insert('insert into users (id, name) values (?, ?)', [1, 'Dayle']);
+
+#执行 Update 语句
+#update 方法用于更新数据库中现有的记录。该方法返回该执行语句影响的行数
+$affected = DB::update('update users set votes = 100 where name = ?', ['John']);
+
+#执行 Delete 语句
+#delete 方法用于从数据库中删除记录。与 update 方法一样，返回受该执行语句影响的行数：
+$deleted = DB::delete('delete from users');
+
+#执行普通语句
+#有些数据库语句不会有任何返回值。对于这些语句，你可以使用 DB Facade 的 statement 方法来运行：
+DB::statement('drop table users');
+
+##运行未预处理的语句
+#有时你可能希望在不绑定任何值的情况下运行语句。对于这些类型的操作，可以使用 DB Facade 的 unprepared 方法：
+DB::unprepared('update users set votes = 100 where name = "Dries"');
+
+##隐式提交
+#在事务中使用 DB 外观的 statement 和 unprepared 方法时，必须小心避免导致 [隐式提交] 的语句 (https://dev.mysql.com/doc/refman/8.0/en/implicit-commit.html)。 这些语句将导致数据库引擎间接提交整个事务，从而使 Laravel 不知道数据库的事务级别。这种语句的一个例子是创建数据库表：
+DB::unprepared('create table a (col varchar(1) null)');
+
+##监听查询事件
+#如果你想监控程序执行的每一个 SQL 查询，你可以使用 listen 方法。这个方法对于记录查询或调试非常有用。你可以在 服务提供器 中注册你的查询监听器：
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * 注册所有应用的服务
+     *
+     * @return void
+     */
+    public function register()
+    {
+        //
+    }
+
+    /**
+     * 引导所有应用的服务
+     *
+     * @return void
+     */
+    public function boot()
+    {
+        DB::listen(function ($query) {
+            // $query->sql
+            // $query->bindings
+            // $query->time
+        });
+    }
+}
+
+
+
+## 数据库事务
+#你可以使用 DB facade 的 transaction 方法在数据库事务中运行一组操作。如果事务的闭包 Closure 中出现一个异常，事务将会回滚。如果事务闭包 Closure 执行成功，事务将自动提交。一旦你使用了 transaction， 就不必担心手动回滚或提交的问题：
+DB::transaction(function () {
+    DB::table('users')->update(['votes' => 1]);
+
+    DB::table('posts')->delete();
+});
+
+##处理死锁
+#transaction 方法接受一个可选的第二个参数，该参数用来表示事务发生死锁时重复执行的次数。一旦定义的次数尝试完毕，就会抛出一个异常：
+DB::transaction(function () {
+    DB::table('users')->update(['votes' => 1]);
+
+    DB::table('posts')->delete();
+}, 5);
+
+## 手动使用事务
+#如果你想要手动开始一个事务，并且对回滚和提交能够完全控制，那么你可以使用 DB Facade 的 beginTransaction 方法：
+DB::beginTransaction();
+
+#你可以使用 rollBack 方法回滚事务：
+DB::rollBack();
+
+#最后，你可以使用 commit 方法提交事务：
+DB::commit();
+#技巧：DB facade 的事务方法同样适用于 查询构造器 和 Eloquent ORM。
+
+#连接到数据库 CLI
+#如果要连接到数据库的 CLI，可以使用 db Artisan 命令：
+php artisan db
+
+#如果需要，可以指定数据库连接名称以连接到不是默认连接的数据库连接：
+php artisan db mysql
+
+```
